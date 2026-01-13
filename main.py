@@ -1,6 +1,8 @@
 import csv
 from src.scoring import calculate_risk_score
 from src.decision import loan_decision
+from src.loan_terms import recommend_loan_terms
+
 
 with open("data/applicants.csv", newline="") as file:
     reader = csv.DictReader(file)
@@ -22,3 +24,12 @@ for idx, row in enumerate(applicants, start=1):
     print(f"Applicant {idx}")
     print(f"  Risk Score: {risk_score}")
     print(f"  Decision: {decision} ({risk_category})\n")
+
+    if decision == "Approved":
+        terms = recommend_loan_terms(applicant, risk_category)
+        print(f"  Suggested Loan Amount: ₹{terms['max_loan_amount']}")
+        print(f"  Interest Rate: {terms['interest_rate']}%")
+        print(f"  Tenure: {terms['tenure_years']} years")
+
+    print()
+
