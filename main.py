@@ -2,11 +2,14 @@ import csv
 from src.scoring import calculate_risk_score
 from src.decision import loan_decision
 from src.loan_terms import recommend_loan_terms
-
+from src.pd_model import PDModel
 
 with open("data/applicants.csv", newline="") as file:
     reader = csv.DictReader(file)
     applicants = list(reader)
+
+pd_model = PDModel()
+pd_model.train("data/applicants.csv")
 
 for idx, row in enumerate(applicants, start=1):
     applicant = {
@@ -19,11 +22,13 @@ for idx, row in enumerate(applicants, start=1):
     }
 
     risk_score = calculate_risk_score(applicant)
+    pd = pd_model.predict_pd(applicant)
     decision, risk_category = loan_decision(applicant, risk_score)
 
     print(f"Applicant {idx}")
     print(f"  Risk Score: {risk_score}")
-    print(f"  Decision: {decision} ({risk_category})\n")
+    print(f"  Probability of Default: {pd:.2f}")
+    print(f"  Decision: {decision} ({risk_category})")
 
     if decision == "Approved":
         terms = recommend_loan_terms(applicant, risk_category)
@@ -32,4 +37,3 @@ for idx, row in enumerate(applicants, start=1):
         print(f"  Tenure: {terms['tenure_years']} years")
 
     print()
-
